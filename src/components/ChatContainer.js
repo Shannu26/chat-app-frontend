@@ -11,16 +11,17 @@ export default function ChatContainer({ currentChat, socket }) {
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
-  //   useEffect(async () => {
-  //     const data = await JSON.parse(
-  //       localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-  //     );
-  //     const response = await axios.post(recieveMessageRoute, {
-  //       from: data._id,
-  //       to: currentChat._id,
-  //     });
-  //     setMessages(response.data);
-  //   }, [currentChat]);
+  useEffect(() => {
+    const asyncFunc = async () => {
+      const data = await JSON.parse(localStorage.getItem("chat-app-user"));
+      const response = await axios.post(recieveMessageRoute, {
+        from: data._id,
+        to: currentChat._id,
+      });
+      setMessages(response.data);
+    };
+    asyncFunc();
+  }, [currentChat]);
 
   //   useEffect(() => {
   //     const getCurrentChat = async () => {
@@ -35,36 +36,36 @@ export default function ChatContainer({ currentChat, socket }) {
 
   const handleSendMsg = async (msg) => {
     const data = await JSON.parse(localStorage.getItem("chat-app-user"));
-    // socket.current.emit("send-msg", {
-    //   to: currentChat._id,
-    //   from: data._id,
-    //   msg,
-    // });
+    socket.current.emit("send-msg", {
+      to: currentChat._id,
+      from: data._id,
+      msg,
+    });
     await axios.post(sendMessageRoute, {
       from: data._id,
       to: currentChat._id,
       message: msg,
     });
-    // const msgs = [...messages];
-    // msgs.push({ fromSelf: true, message: msg });
-    // setMessages(msgs);
+    const msgs = [...messages];
+    msgs.push({ fromSelf: true, message: msg });
+    setMessages(msgs);
   };
 
-  //   useEffect(() => {
-  //     if (socket.current) {
-  //       socket.current.on("msg-recieve", (msg) => {
-  //         setArrivalMessage({ fromSelf: false, message: msg });
-  //       });
-  //     }
-  //   }, []);
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msg-recieve", (msg) => {
+        setArrivalMessage({ fromSelf: false, message: msg });
+      });
+    }
+  }, []);
 
-  //   useEffect(() => {
-  //     arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
-  //   }, [arrivalMessage]);
+  useEffect(() => {
+    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
 
-  //   useEffect(() => {
-  //     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  //   }, [messages]);
+  // useEffect(() => {
+  //   scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
 
   return (
     <Container>
